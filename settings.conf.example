@@ -1,0 +1,8 @@
+[mongo]
+host = localhost
+db = socketmongo
+collection = chat
+
+[socket]
+host = localhost
+token = abc123def456
