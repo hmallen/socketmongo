@@ -1,4 +1,5 @@
 env/
+env-win/
 .vscode/
 *.log
 settings.conf
