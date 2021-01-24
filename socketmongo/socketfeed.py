@@ -21,14 +21,16 @@ class SocketFeed:
         socket_host,
         socket_token
     ):
-        self.logger = log_handler.create_logger('socketfeed')
+        self.logger = log_handler.create_logger('socketfeed.SocketFeed')
 
         # MongoDB Client
         mongo_client = MongoClient(mongo_host)
         mongo_db = mongo_client[mongo_db]
 
         self.mongo_coll = mongo_db[mongo_collection]
-        self.socket_url = f"{socket_host}{socket_token}"
+        self.socket_url = f"{socket_host}{socket_token}"  # &EIO=3
+
+        self.logger.debug(f"self.socket_url: {self.socket_url}")
 
     def run(self):
         # Socket.io Client
@@ -85,7 +87,7 @@ class SocketFeed:
 
 
 if __name__ == '__main__':
-    main_logger = loghandler.create_logger('socketmongo.main')
+    main_logger = log_handler.create_logger('socketmongo.main')
 
     MONGO_HOST = None
     MONGO_DB = None
@@ -117,6 +119,11 @@ if __name__ == '__main__':
         try:
             SOCKET_HOST = config['socket']['host']
             SOCKET_TOKEN = config['socket']['token']
+
+        except:
+            main_logger.logger.error(
+                'Could not load socket.io host and token from config file.')
+            sys.exit(1)
 
     socket_feed = SocketFeed(
         mongo_host=MONGO_HOST,
