@@ -6,6 +6,8 @@ import socketio
 from pymongo import MongoClient
 from numpyencoder import NumpyEncoder
 
+import signal
+
 import loghandler
 
 log_handler = loghandler.LogHandler()
@@ -28,13 +30,14 @@ class SocketFeed:
         mongo_db = mongo_client[mongo_db]
 
         self.mongo_coll = mongo_db[mongo_collection]
-        self.socket_url = f"{socket_host}{socket_token}"  # &EIO=3
+        # &EIO=3
+        self.socket_url = f"{socket_host}?joinServerParameters={socket_token}"
 
         self.logger.debug(f"self.socket_url: {self.socket_url}")
 
     def run(self):
         # Socket.io Client
-        sio = socketio.AsyncClient(engineio_logger=self.logger)
+        sio = socketio.AsyncClient()  # engineio_logger=self.logger)
 
         ## Socket.io Event Handlers ##
 
@@ -75,6 +78,8 @@ class SocketFeed:
 
         loop = asyncio.get_event_loop()
 
+        loop.add_signal_handler(signal.SIGINT, stop_server)
+
         try:
             loop.run_until_complete(start_server(socket_url=self.socket_url))
             loop.run_forever()
@@ -82,8 +87,8 @@ class SocketFeed:
         except KeyboardInterrupt:
             self.logger.info('Exit signal received.')
 
-        finally:
-            loop.run_until_complete(stop_server())
+        # finally:
+        #    loop.run_until_complete(stop_server())
 
 
 if __name__ == '__main__':
